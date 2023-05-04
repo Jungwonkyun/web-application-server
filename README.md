@@ -21,9 +21,6 @@
 
 > RequestHandler 수정전.java
 
-</br>
-</br>
-
 ![](https://velog.velcdn.com/images/1_kyun/post/ea3b1dbc-a06c-4616-982b-001c232b0693/image.png)
 
 </br>
@@ -54,8 +51,7 @@
 
 
 > RequestHandler 수정후.java
-</br>
-</br>
+
 ![](https://velog.velcdn.com/images/1_kyun/post/09ca4b88-0762-4b7e-8bdb-2602bcad1ac2/image.png)
 
 </br>
