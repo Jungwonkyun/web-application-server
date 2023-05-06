@@ -112,8 +112,110 @@ public void run() {
 <br>
 
 ### 요구사항 2 - get 방식으로 회원가입
-* 
+</br>
 
+> - http://localhost:8080/user/create?userId=admin&password=1234&name=%EC%A0%95%EC%9B%90%EA%B7%A0&email=wjddnjsrbs97%40naver.com 
+와 같은 형식으로 회원가입 요청이 GET방식으로 들어온다 (URL)
+
+![](https://velog.velcdn.com/images/1_kyun/post/d6fcf1b5-bfc8-4c33-8af8-071561599576/image.png)
+
+</br>
+</br>
+
+수정전에는 URL이 들어와도 아무런 매핑을 해주지 않는데 GET 방식으로 들어온 회원가입 URL을 파싱해서 User 객체에 저장해보자
+
+
+> RequestHandler 수정전.java
+
+```java
+public void run() {
+        log.debug("New Client Connect! Connected IP : {}, Port : {}", 
+        connection.getInetAddress(),connection.getPort());
+
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+            
+            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+        	BufferedReader br = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+        	String line = br.readLine();
+        	
+        	if(line == null)return;
+        	
+            //3.들어온 라인을 공백기준으로 파싱해준다
+        	String [] tokens = line.split(" ");
+            
+            DataOutputStream dos = new DataOutputStream(out);
+            
+            byte[] body = Files.readAllBytes(new File("./webapp"+tokens[1]).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+```
+
+</br>
+</br>
+
+> RequestHandler 수정후.java
+
+```java
+public void run() {
+		log.debug("New Client Connect! Connected IP : {}, Port : {}", 
+        connection.getInetAddress(),connection.getPort());
+
+		try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+			// TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			String line = br.readLine();
+
+			// log.debug("request line : {}",line);
+
+			// 만약에 들어온 url이 없으면 리턴해준다 -> 무한루프 막기 위해서
+			if (line == null)
+				return;
+			
+			String[] tokens = line.split(" ");
+			
+			String url = tokens[1];
+			
+			///1. user/create로 시작하는 URL이 들어올 때 처리해줌 
+			if (url.startsWith("/user/create")) {
+				//2. create?~~ 에서 ?의 위치를 저장
+				int index = url.indexOf("?");
+				
+				//3. ?이후의 url을 핵심 url로 자른다
+				String pointUrl = url.substring(index+1);
+				
+				//4. ?이후에 userId=admin&password=1234...로 들어왔을 때 
+                //= 을 기준으로 key:value parsing
+				Map<String, String> datas = HttpRequestUtils.parseQueryString(pointUrl);
+				
+				//5. User 객체 생성 
+				User user = new User(datas.get("userId"),datas.get("password"),
+                										datas.get("name"),datas.get("email"));
+				log.debug("user info: {}",user);
+			}
+			
+			else {
+				DataOutputStream dos = new DataOutputStream(out);
+				byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+				response200Header(dos, body.length);
+				responseBody(dos, body);
+			}
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+	}
+```
+</br>
+</br>
+
+- 객체 생성 완료
+
+![](https://velog.velcdn.com/images/1_kyun/post/276b70f4-1be0-4d05-89fd-3eaad6c689fb/image.png)
+</br>
+</br>
 ### 요구사항 3 - post 방식으로 회원가입
 * 
 
