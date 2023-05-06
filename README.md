@@ -347,65 +347,57 @@ public void run() {
 
 ```java
 public void run() {
-		log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-				connection.getPort());
+	log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
+			connection.getPort());
 
-		try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-			// TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+	try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+		// TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
 			
-			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-			String line = br.readLine();
-			String[] tokens = line.split(" ");
+		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+		String line = br.readLine();
+		String[] tokens = line.split(" ");
             
-			int contentLength = 0;
+		int contentLength = 0;
 			
-            System.out.println("출력 시작");
-			System.out.println("-----------------------------------");
-			
-            while(!line.equals("")) {
-				line = br.readLine();
-				System.out.println(line);
-				
-                if(line.contains("Content-Length")){
-					contentLength = getContentLength(line);
-				}
+            	while(!line.equals("")) {
+			line = br.readLine();	
+                	if(line.contains("Content-Length")){
+				contentLength = getContentLength(line);
 			}
+		}
 			
-            System.out.println("-----------------------------------");
-			System.out.println("출력 종료");
 			
-			if (line == null)
-				return;
+		if (line == null)
+			return;
 
-			String url = tokens[1];
+		String url = tokens[1];
 			
-			if ("/user/create".equals(url)) {
-				String body = IOUtils.readData(br, contentLength);
+		if ("/user/create".equals(url)) {
+			String body = IOUtils.readData(br, contentLength);
 
-				//userId=admin&password=1234...로 들어왔을 때 = 을 기준으로 key:value parsing
-				Map<String, String> datas = HttpRequestUtils.parseQueryString(body);
+			//userId=admin&password=1234...로 들어왔을 때 = 을 기준으로 key:value parsing
+			Map<String, String> datas = HttpRequestUtils.parseQueryString(body);
 				
-				//User 객체 생성 
-				User user = new User(datas.get("userId"),datas.get("password"),datas.get("name"),
-           								datas.get("email"));
+			//User 객체 생성 
+			User user = new User(datas.get("userId"),datas.get("password"),datas.get("name"),datas.get("email"));
 				log.debug("user info: {}",user);
 			}
 			
-			else {
-				DataOutputStream dos = new DataOutputStream(out);
-				byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
-				response200Header(dos, body.length);
-				responseBody(dos, body);
-			}
-		} catch (IOException e) {
-			log.error(e.getMessage());
+		else {
+			DataOutputStream dos = new DataOutputStream(out);
+			byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+			response200Header(dos, body.length);
+			responseBody(dos, body);
 		}
+	} catch (IOException e) {
+		log.error(e.getMessage());
 	}
+}
     
-    private int getContentLength(String line) {
-		String[] headerTokens = line.split(":");
-		return Integer.parseInt(headerTokens[1].trim());
-	}
+ private int getContentLength(String line) {
+	String[] headerTokens = line.split(":");
+	return Integer.parseInt(headerTokens[1].trim());
+}
 ```
 
 </br>
@@ -545,14 +537,14 @@ public void run() {
 	}
     
 private void response302Header(DataOutputStream dos, String url) {
-		try {
-			dos.writeBytes("HTTP/1.1 302 Redirect \r\n");
-			dos.writeBytes("Location: " + url + "\r\n");
-			dos.writeBytes("\r\n");
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		}
+	try {
+		dos.writeBytes("HTTP/1.1 302 Redirect \r\n");
+		dos.writeBytes("Location: " + url + "\r\n");
+		dos.writeBytes("\r\n");
+	} catch (IOException e) {
+		log.error(e.getMessage());
 	}
+}
     
 ```
 
@@ -565,13 +557,12 @@ private void response302Header(DataOutputStream dos, String url) {
 ```java
 
 public void run() {
-		log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-				connection.getPort());
+	log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
 
-		try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-			// TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+	try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+		// TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
 			
-			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			String line = br.readLine();
 			String[] tokens = line.split(" ");
 			
@@ -611,7 +602,7 @@ public void run() {
 			}
 			
 			
-            //1. login form 요청이 들어올 때 
+            		//1. login form 요청이 들어올 때 
 			else if ("/user/login".equals(url)) {
 				
 				String body = IOUtils.readData(br, contentLength);
@@ -619,7 +610,7 @@ public void run() {
 				//userId=admin&password=1234...로 들어왔을 때 = 을 기준으로 key:value parsing
 				Map<String, String> datas = HttpRequestUtils.parseQueryString(body);
 				
-                //2. data의 userId값을 받아 DB안에 해당 id를 가진 객체가 있는지 확인
+                		//2. data의 userId값을 받아 DB안에 해당 id를 가진 객체가 있는지 확인
 				User user = DataBase.findUserById(datas.get("userId"));
 				
 				//3. 해당하는 id로 회원가입한 이력이 없을 경우 loginFail로 보내준다 
@@ -684,7 +675,7 @@ public void run() {
 		}
 	}
 	
-    7. 로그인이 성공했을 때 Cookie를 설정하고 redirect할 경로를 설정
+    	7. 로그인이 성공했을 때 Cookie를 설정하고 redirect할 경로를 설정
 	private void response302LoginSuccessHeader(DataOutputStream dos) {
 		try {
 			dos.writeBytes("HTTP/1.1 302 Redirect \r\n");
